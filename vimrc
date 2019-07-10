@@ -65,6 +65,14 @@ set hidden
 
 let mapleader=","
 
+" NTree
+let g:netrw_liststyle = 3
+map <leader>1 :Vexplore<CR>
+"augroup ProjectDrawer
+"  autocmd!
+"  autocmd VimEnter * :Vexplore
+"augroup END
+
 " turn absolute line numbers on
 set number relativenumber
 
@@ -73,7 +81,7 @@ colorscheme evening
 " Maps
 " map <F4> :Tlist<cr>
 " map <F8> :!ctags -R --language-force=c<cr>
-map <F5> :%!xxd<cr>
+nnoremap <F5> :%!xxd<cr>
 
 " Source a global configuration file if available
 if filereadable("/etc/vim/vimrc.local")
