@@ -61,6 +61,7 @@ set hlsearch
 set cursorline
 set cursorcolumn
 set termguicolors
+set hidden
 
 let mapleader=","
 
