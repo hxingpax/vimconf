@@ -62,6 +62,7 @@ set cursorline
 set cursorcolumn
 set termguicolors
 set hidden
+set lazyredraw
 
 let mapleader=","
 
