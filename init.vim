@@ -26,6 +26,9 @@ endif
 syntax on
 filetype plugin indent on
 
-call deoplete#enable()
+" Call dein#install() at the first time.
+" Call dein#update() everytime plugins got updated.
 
 source ~/.config/nvim/plugins.vim
+
+source ~/.config/nvim/setup.vim
