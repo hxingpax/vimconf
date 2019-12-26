@@ -50,7 +50,7 @@ set encoding=utf-8
 set fileencoding=utf-8
 set tabstop=2
 set shiftwidth=2
-"set expandtab
+set expandtab
 "set lines=40
 "set columns=90
 set backupdir=~/.vimbk
