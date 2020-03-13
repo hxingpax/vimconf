@@ -62,6 +62,7 @@ set cursorline
 set cursorcolumn
 set termguicolors
 set lazyredraw
+set fileformat=unix
 
 let mapleader=","
 
