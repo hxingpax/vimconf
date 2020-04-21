@@ -2,7 +2,10 @@
 colorscheme dracula
 
 " Fuzzy
-nnoremap <leader>, :FZF<CR>
+nnoremap <leader>f :FZF<CR>
+
+" Rg
+nnoremap <leader>, :Rg <C-R><C-W><CR>
 
 " Status bars
 " Enable the list of buffers
