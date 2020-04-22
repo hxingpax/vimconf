@@ -2,7 +2,7 @@
 colorscheme dracula
 
 " Fuzzy
-nnoremap <leader>f :FZF<CR>
+nnoremap <leader>. :FZF<CR>
 
 " Rg
 nnoremap <leader>, :Rg <C-R><C-W><CR>
