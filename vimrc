@@ -85,6 +85,8 @@ colorscheme evening
 " map <F8> :!ctags -R --language-force=c<cr>
 nnoremap <F5> :%!xxd<cr>
 
+tnoremap <Esc> <C-\><C-N>
+
 " Source a global configuration file if available
 if filereadable("/etc/vim/vimrc.local")
   source /etc/vim/vimrc.local
