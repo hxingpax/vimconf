@@ -68,8 +68,8 @@ let mapleader=","
 
 " NTree
 let g:netrw_liststyle = 3
-map <leader>` :g/<C-R><C-W><CR>
-map <leader>1 :Vexplore<CR>
+map <leader>` :Vexplore<CR>
+map <leader>. :g/<C-R><C-W><CR>
 "augroup ProjectDrawer
 "  autocmd!
 "  autocmd VimEnter * :Vexplore
