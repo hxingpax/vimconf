@@ -69,11 +69,13 @@ let mapleader=","
 " NTree
 let g:netrw_liststyle = 3
 map <leader>` :Vexplore<CR>
-map <leader>. :g/<C-R><C-W><CR>
 "augroup ProjectDrawer
 "  autocmd!
 "  autocmd VimEnter * :Vexplore
 "augroup END
+
+" For fast search
+map <leader>. :g/<C-R><C-W><CR>
 
 " turn absolute line numbers on
 set number relativenumber
@@ -85,6 +87,7 @@ colorscheme evening
 " map <F8> :!ctags -R --language-force=c<cr>
 nnoremap <F5> :%!xxd<cr>
 
+" For terminal
 tnoremap <Esc> <C-\><C-N>
 
 " Source a global configuration file if available
