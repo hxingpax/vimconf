@@ -88,7 +88,7 @@ colorscheme evening
 nnoremap <F5> :%!xxd<cr>
 
 " For terminal
-tnoremap <Esc> <C-\><C-N>
+"tnoremap <Esc> <C-\><C-N>
 
 " Source a global configuration file if available
 if filereadable("/etc/vim/vimrc.local")
