@@ -2,6 +2,11 @@
 # ~~~
 #   New-item –type file –force $profile
 # ~~~
+#
+# Sometimes PowerShell is not allowed to run the startup script, run following command:
+# ~~~
+# set-executionpolicy remotesigned
+# ~~~
 
 # Bash like tab key
 Set-PSReadlineKeyHandler -Key Tab -Function Complete
