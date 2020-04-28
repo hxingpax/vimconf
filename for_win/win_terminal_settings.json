@@ -37,7 +37,7 @@
             "colorScheme" : "Dracula",
             "cursorColor" : "#FFFFFF",
             "cursorShape" : "bar",
-            "fontFace" : "Consolas",
+            "fontFace" : "Lucida_Console",
             "fontSize" : 11,
             "historySize" : 9001,
             "padding" : "0, 0, 0, 0",
