@@ -40,3 +40,6 @@ call dein#add('tpope/vim-obsession')
 
 " Ruby
 call dein#add('vim-ruby/vim-ruby')
+
+" Dir difference
+call dein#add('will133/vim-dirdiff')
