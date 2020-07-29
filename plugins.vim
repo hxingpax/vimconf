@@ -45,5 +45,7 @@ call dein#add('vim-ruby/vim-ruby')
 call dein#add('will133/vim-dirdiff')
 
 " Enhance Markdown
+" Should run `call mkdp#util#install()` after the MarkdownPreview got
+" installed
 call dein#add('iamcco/markdown-preview.nvim', {'on_ft': ['markdown', 'pandoc.markdown', 'rmd'],
 					\ 'build': 'sh -c "cd app & yarn install"' })
