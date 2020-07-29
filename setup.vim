@@ -7,6 +7,9 @@ nnoremap <leader>1 :FZF<CR>
 " Rg
 nnoremap <leader>, :Rg <C-R><C-W><CR>
 
+" Markdown preview
+map <leader>m :MarkdownPreview GitHub<CR>
+
 " Status bars
 " Enable the list of buffers
 let g:airline#extensions#tabline#enabled = 1
@@ -15,4 +18,3 @@ let g:airline#extensions#tabline#fnamemod = ':t'
 " To open a new empty buffer
 " This replaces :tabnew which I used to bind to this mapping
 " nmap <leader>t :enew<CR>
-

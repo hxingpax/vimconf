@@ -43,3 +43,6 @@ call dein#add('vim-ruby/vim-ruby')
 
 " Dir difference
 call dein#add('will133/vim-dirdiff')
+
+" Enhance Markdown
+call dein#add('MikeCoder/markdown-preview.vim')
