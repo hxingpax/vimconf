@@ -45,4 +45,5 @@ call dein#add('vim-ruby/vim-ruby')
 call dein#add('will133/vim-dirdiff')
 
 " Enhance Markdown
-call dein#add('MikeCoder/markdown-preview.vim')
+call dein#add('iamcco/markdown-preview.nvim', {'on_ft': ['markdown', 'pandoc.markdown', 'rmd'],
+					\ 'build': 'sh -c "cd app & yarn install"' })
