@@ -3,7 +3,18 @@
 
 set runtimepath+=~/.vim,~/.vim/after
 set packpath+=~/.vim
-source /etc/vim/vimrc
+
+if filereadable("/et/vim/vimrc")
+  source /etc/vim/vimrc
+elseif filereadable("~/vimrc")
+  source ~/vimrc
+elseif filereadable("~/vimrc")
+  source ~/vimrc
+elseif filereadable("~/.vimrc")
+  source ~/.vimrc
+else
+  echoerr "Could not find vimrc."
+endif
 
 if &compatible
   set nocompatible
