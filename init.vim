@@ -1,10 +1,9 @@
-" Call dein#install() at the first time.
 " Call dein#update() everytime plugins got updated.
 
 set runtimepath+=~/.vim,~/.vim/after
 set packpath+=~/.vim
 
-if filereadable("/et/vim/vimrc")
+if filereadable("/etc/vim/vimrc")
   source /etc/vim/vimrc
 elseif filereadable(expand("~/vimrc"))
   source ~/vimrc
@@ -29,6 +28,11 @@ if dein#load_state('~/.cache/dein')
 
   call dein#end()
   call dein#save_state()
+endif
+
+" Installing
+if dein#check_install()
+  call dein#install()
 endif
 
 
