@@ -6,11 +6,9 @@ set packpath+=~/.vim
 
 if filereadable("/et/vim/vimrc")
   source /etc/vim/vimrc
-elseif filereadable("~/vimrc")
+elseif filereadable(expand("~/vimrc"))
   source ~/vimrc
-elseif filereadable("~/vimrc")
-  source ~/vimrc
-elseif filereadable("~/.vimrc")
+elseif filereadable(expand("~/.vimrc"))
   source ~/.vimrc
 else
   echoerr "Could not find vimrc."
