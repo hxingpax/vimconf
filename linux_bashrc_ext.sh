@@ -1,10 +1,14 @@
-alias ga='grep -rnHPI'
-alias cpplint='~/workspace/google/styleguide/cpplint/cpplint.py'
-alias r='rake'
-alias t='tree -L'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
 alias ,,='fzf'
+alias t='tree -L'
+alias r='rake'
+alias ga='grep -rnHPI'
 alias f='find'
+alias glog='git log --graph --color'
 
+set -o ignoreeof
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
