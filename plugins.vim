@@ -1,5 +1,6 @@
 " Dracula theme
 call dein#add('dracula/vim')
+let g:dracula_colorterm = 0
 colorscheme dracula
 
 
@@ -44,12 +45,7 @@ call dein#add('neomake/neomake')
 
 
 " YouCompleteMe
-" According to https://github.com/Shougo/dein.vim/issues/144, you may have to
-" run
-" ````
-" :call dein#recache_runtimepath()
-" ````
-" If you got error *The ycmd server SHUT DOWN*
+"call dein#add('ycm-core/YouCompleteMe', {'build': './install.py', 'merged': 0})
 call dein#add('ycm-core/YouCompleteMe', {'build': './install.py --clangd-completer', 'merged': 1})
 let g:ycm_min_num_of_chars_for_completion = 2
 let g:ycm_min_num_identifier_candidate_chars = 0
