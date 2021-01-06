@@ -32,7 +32,7 @@
         "defaults":
         {
             // Put settings here that you want to apply to all profiles.
-            "acrylicOpacity" : 0.5,
+            "acrylicOpacity" : 0.8,
             "closeOnExit" : true,
             "colorScheme" : "Dracula",
             "cursorColor" : "#FFFFFF",
