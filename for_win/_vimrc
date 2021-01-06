@@ -82,6 +82,8 @@ map <leader>. :g/<C-R><C-W><CR>
 set number relativenumber
 
 colorscheme evening
+" Uncomment following line to enable tranparency
+" hi Normal guibg=NONE ctermbg=NONE
 
 " Maps
 " map <F4> :Tlist<cr>
