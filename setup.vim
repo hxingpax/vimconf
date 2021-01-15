@@ -11,8 +11,3 @@ nmap <leader>m <Plug>MarkdownPreview
 " nmap <leader>k <Plug>MarkdownPreviewStop
 nmap <leader>n <Plug>MarkdownPreviewToggle
 
-
-" Status bars
-" To open a new empty buffer
-" This replaces :tabnew which I used to bind to this mapping
-" nmap <leader>t :enew<CR>
