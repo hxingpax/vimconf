@@ -1,5 +1,5 @@
 " Fuzzy
-nnoremap <leader>1 :FZF<CR>
+nnoremap <leader>` :FZF<CR>
 
 
 " Rg

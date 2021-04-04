@@ -66,9 +66,14 @@ set fileformat=unix
 
 let mapleader=","
 
+colorscheme evening
+
+" Enable transparency
+" hi Normal guibg=NONE ctermbg=NONE
+
 " NTree
 let g:netrw_liststyle = 3
-map <leader>` :Vexplore<CR>
+map <leader>1 :Vexplore<CR>
 "augroup ProjectDrawer
 "  autocmd!
 "  autocmd VimEnter * :Vexplore
@@ -80,17 +85,13 @@ map <leader>. :g/<C-R><C-W><CR>
 " turn absolute line numbers on
 set number relativenumber
 
-colorscheme evening
-" Uncomment following line to enable tranparency
-" hi Normal guibg=NONE ctermbg=NONE
-
 " Maps
 " map <F4> :Tlist<cr>
 " map <F8> :!ctags -R --language-force=c<cr>
 nnoremap <F5> :%!xxd<cr>
 
-" For terminal
-"tnoremap <Esc> <C-\><C-N>
+" View mode in terminal
+" tnoremap <C-`> <C-\><C-N>
 
 " Source a global configuration file if available
 if filereadable("/etc/vim/vimrc.local")
