@@ -64,6 +64,8 @@ set termguicolors
 set lazyredraw
 set fileformat=unix
 set guifont=Lucida_Console:h10
+set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
+set list
 
 let mapleader=","
 
