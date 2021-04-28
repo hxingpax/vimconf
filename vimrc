@@ -63,6 +63,8 @@ set cursorcolumn
 set termguicolors
 set lazyredraw
 set fileformat=unix
+set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
+set list
 
 let mapleader=","
 
