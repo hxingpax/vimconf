@@ -82,7 +82,7 @@ map <leader>1 :Vexplore<CR>
 "augroup END
 
 " For fast search
-map <leader>. :g/<C-R><C-W><CR>
+map <leader>. :g/\<<C-R><C-W>\><CR>
 
 " turn absolute line numbers on
 set number relativenumber
