@@ -2,11 +2,6 @@
 # ~~~
 #   New-item –type file –force $profile
 # ~~~
-#
-# Sometimes PowerShell is not allowed to run the startup script, run following command:
-# ~~~
-# set-executionpolicy remotesigned
-# ~~~
 
 # Bash like tab key
 Set-PSReadlineKeyHandler -Key Tab -Function Complete
@@ -19,3 +14,7 @@ $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
   Import-Module "$ChocolateyProfile"
 }
+
+# Set alias
+Set-Alias -Name g -Value git
+
