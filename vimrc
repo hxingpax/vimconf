@@ -55,7 +55,11 @@ set expandtab
 "set columns=90
 set backupdir=~/.vimbk
 set dir=~/.vimbk
-set clipboard=unnamedplus
+
+" 'unnamedplus' for linux, non-plus for macox
+"set clipboard=unnamedplus
+set clipboard=unnamed
+
 set guioptions-=T
 set hlsearch
 set cursorline
