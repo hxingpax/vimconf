@@ -28,6 +28,8 @@ export GTK_IM_MODULE=ibus
 export XMODIFIERS=@im=ibus
 export QT_IM_MODULE=ibus
 
+ulimit -c unlimited
+
 #export GRADLE_OPTS='-DsocksProxyHost=127.0.0.1 -DsocksProxyPort=1080' # Fuck Gradle
 
 #export PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$"
