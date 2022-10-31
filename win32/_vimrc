@@ -53,8 +53,8 @@ set shiftwidth=2
 set expandtab
 "set lines=40
 "set columns=90
-set backupdir=e:\vimbk
-set dir=e:\vimbk
+set backupdir=c:\.vimbk
+set dir=c:\.vimbk
 set clipboard=unnamed
 set guioptions-=T
 set hlsearch
