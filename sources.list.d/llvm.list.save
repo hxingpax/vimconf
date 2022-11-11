@@ -1,0 +1,9 @@
+deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main
+deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic main
+# Needs 'sudo add-apt-repository ppa:ubuntu-toolchain-r/test' for libstdc++ with C++20 support
+# 14
+deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-14 main
+deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-14 main
+# 15
+deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-15 main
+deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-15 main
