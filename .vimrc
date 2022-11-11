@@ -1,10 +1,5 @@
 " Call dein#update() everytime plugins got updated.
 
-set runtimepath+=~/.vim,~/.vim/after
-set packpath+=~/.vim
-
-source ~/.vim/vimrc
-
 " Add the dein installation directory into runtimepath
 set runtimepath+=~/.cache/dein/repos/github.com/Shougo/dein.vim
 
@@ -23,10 +18,5 @@ if dein#check_install()
   call dein#install()
 endif
 
-
-syntax on
-filetype plugin indent on
-
-
-source ~/.vim/plugins.vim
-source ~/.vim/setup.vim
+source ~/workspace/vimconf/plugins.vim
+source ~/workspace/vimconf/setup.vim

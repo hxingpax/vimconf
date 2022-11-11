@@ -53,8 +53,10 @@ set shiftwidth=2
 set expandtab
 "set lines=40
 "set columns=90
-set backupdir=~/.vimbk
-set dir=~/.vimbk
+set dir=~/.vim
+set backupdir=~/.vim/bkup
+set packpath+=~/.vim
+set runtimepath+=~/.vim,~/.vim/after
 
 " 'unnamedplus' for linux, non-plus for macox
 "set clipboard=unnamedplus
@@ -70,9 +72,20 @@ set fileformat=unix
 set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
 set list
 
+" turn absolute line numbers on
+set number relativenumber
+
 let mapleader=","
 
+syntax on
+
+filetype plugin indent on
+
 colorscheme evening
+
+if &compatible
+  set nocompatible
+endif
 
 " Enable transparency
 " hi Normal guibg=NONE ctermbg=NONE
@@ -87,9 +100,6 @@ map <leader>1 :Vexplore<CR>
 
 " For fast search
 map <leader>. :g/\<<C-R><C-W>\><CR>
-
-" turn absolute line numbers on
-set number relativenumber
 
 " Maps
 " map <F4> :Tlist<cr>
