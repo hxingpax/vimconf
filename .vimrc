@@ -18,5 +18,6 @@ if dein#check_install()
   call dein#install()
 endif
 
+source ~/workspace/vimconf/vimrc
 source ~/workspace/vimconf/plugins.vim
 source ~/workspace/vimconf/setup.vim
