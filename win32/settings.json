@@ -10,17 +10,17 @@
         {
             "command": 
             {
-                "action": "scrollDown"
-            },
-            "keys": "ctrl+shift+e"
-        },
-        {
-            "command": 
-            {
                 "action": "switchToTab",
                 "index": 3
             },
             "keys": "alt+4"
+        },
+        {
+            "command": 
+            {
+                "action": "scrollDown"
+            },
+            "keys": "ctrl+shift+e"
         },
         {
             "command": 
@@ -30,11 +30,11 @@
             "keys": "ctrl+shift+y"
         },
         {
-            "command": "duplicateTab",
-            "keys": "ctrl+shift+t"
+            "command": "find"
         },
         {
-            "command": "find"
+            "command": "duplicateTab",
+            "keys": "ctrl+shift+t"
         },
         {
             "command": 
@@ -207,6 +207,7 @@
     "copyFormatting": "none",
     "copyOnSelect": false,
     "defaultProfile": "{07b52e3e-de2c-5db4-bd2d-ba144ed6c273}",
+    "disableAnimations": true,
     "initialCols": 120,
     "initialRows": 30,
     "launchMode": "maximized",
@@ -221,7 +222,7 @@
             "font": 
             {
                 "face": "Cascadia Code",
-                "size": 10
+                "size": 9
             },
             "historySize": 9001,
             "opacity": 90,
@@ -547,6 +548,6 @@
             "yellow": "#808000"
         }
     ],
-    "startOnUserLogin": true,
-    "closeOnExit": true
+    "showTerminalTitleInTitlebar": false,
+    "startOnUserLogin": false
 }
