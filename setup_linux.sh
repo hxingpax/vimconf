@@ -17,16 +17,19 @@ export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
-export ANDROID_HOME=~/Android
-export ANDROID_SDK_ROOT=$ANDROID_HOME/Sdk
-export ANDROID_NDK_ROOT=$ANDROID_HOME/android-ndk-r20
-export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+# export ANDROID_HOME=~/Android
+# export ANDROID_SDK_ROOT=$ANDROID_HOME/Sdk
+# export ANDROID_NDK_ROOT=$ANDROID_HOME/android-ndk-r20
+# export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
 
-export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+# export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
 export GTK_IM_MODULE=ibus
 export XMODIFIERS=@im=ibus
 export QT_IM_MODULE=ibus
+
+export FZF_DEFAULT_COMMAND='rg --files'
+export FZF_DEFAULT_OPTS='-m --height 50% --border'
 
 ulimit -c unlimited
 
