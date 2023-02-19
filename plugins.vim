@@ -17,7 +17,6 @@ call dein#add('airblade/vim-gitgutter')
 " Fuzzy
 call dein#add('junegunn/fzf', { 'build': './install --all', 'merged': 1 }) 
 call dein#add('junegunn/fzf.vim', { 'depends': 'fzf' })
-nnoremap <leader>, :FZF<CR>
 
 
 " Status bars
