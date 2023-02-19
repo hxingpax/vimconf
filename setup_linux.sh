@@ -29,7 +29,7 @@ export XMODIFIERS=@im=ibus
 export QT_IM_MODULE=ibus
 
 export FZF_DEFAULT_COMMAND='rg --files'
-export FZF_DEFAULT_OPTS='-m --height 50% --border'
+export FZF_DEFAULT_OPTS='-m --height 50% --border --layout=reverse'
 
 ulimit -c unlimited
 
