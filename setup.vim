@@ -1,7 +1,7 @@
 " Fuzzy
 nnoremap <leader>` :FZF<CR>
-nnoremap <leader>, :BLines <C-R><C-W><CR>
-nnoremap <leader>. :Rg <C-R><C-W><CR>
+nnoremap <leader>, :Rg <C-R><C-W><CR>
+nnoremap <leader>. :BLines <C-R><C-W><CR>
 
 
 " Markdown preview
