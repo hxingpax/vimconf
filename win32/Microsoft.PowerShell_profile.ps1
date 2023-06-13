@@ -2,6 +2,11 @@
 # ~~~
 #   New-item –type file –force $profile
 # ~~~
+#
+# Run following command in Administrator mode to enable script in powershell if ti's been disabled:
+# ~~~
+# Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+# ~~~
 
 # Bash like tab key
 Set-PSReadlineKeyHandler -Key Tab -Function Complete
