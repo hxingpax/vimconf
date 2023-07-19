@@ -8,6 +8,7 @@ alias r='rake'
 alias ga='grep -rnHPI'
 alias f='find'
 alias glog='git log --graph --color'
+alias myns='netstat -tulpn'
 
 set -o ignoreeof
 
