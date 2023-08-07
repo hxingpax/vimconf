@@ -63,8 +63,9 @@ set cursorcolumn
 set termguicolors
 set lazyredraw
 set fileformat=unix
-set guifont=Lucida_Console:h10
+set guifont=Lucida_Console:h9
 set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
+set linespace=6
 set list
 
 let mapleader=","
