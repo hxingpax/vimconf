@@ -10,17 +10,25 @@
         {
             "command": 
             {
+                "action": "scrollDown"
+            },
+            "keys": "ctrl+shift+e"
+        },
+        {
+            "command": "find",
+            "keys": "ctrl+shift+f"
+        },
+        {
+            "command": 
+            {
                 "action": "switchToTab",
                 "index": 3
             },
             "keys": "alt+4"
         },
         {
-            "command": 
-            {
-                "action": "scrollDown"
-            },
-            "keys": "ctrl+shift+e"
+            "command": "duplicateTab",
+            "keys": "ctrl+shift+t"
         },
         {
             "command": 
@@ -28,13 +36,6 @@
                 "action": "scrollUp"
             },
             "keys": "ctrl+shift+y"
-        },
-        {
-            "command": "find"
-        },
-        {
-            "command": "duplicateTab",
-            "keys": "ctrl+shift+t"
         },
         {
             "command": 
@@ -55,6 +56,14 @@
                 "index": 8
             },
             "keys": "alt+9"
+        },
+        {
+            "command": 
+            {
+                "action": "switchToTab",
+                "index": 6
+            },
+            "keys": "alt+7"
         },
         {
             "command": 
@@ -97,9 +106,34 @@
         {
             "command": 
             {
+                "action": "switchToTab",
+                "index": 2
+            },
+            "keys": "alt+3"
+        },
+        {
+            "command": 
+            {
                 "action": "prevTab"
             },
             "keys": "ctrl+shift+tab"
+        },
+        {
+            "command": 
+            {
+                "action": "switchToTab",
+                "index": 7
+            },
+            "keys": "alt+8"
+        },
+        {
+            "command": 
+            {
+                "action": "splitPane",
+                "split": "auto",
+                "splitMode": "duplicate"
+            },
+            "keys": "alt+shift+d"
         },
         {
             "command": "unbound",
@@ -162,45 +196,11 @@
             "keys": "ctrl+shift+pgdn"
         },
         {
-            "command": 
-            {
-                "action": "switchToTab",
-                "index": 2
-            },
-            "keys": "alt+3"
-        },
-        {
-            "command": 
-            {
-                "action": "switchToTab",
-                "index": 6
-            },
-            "keys": "alt+7"
-        },
-        {
-            "command": 
-            {
-                "action": "switchToTab",
-                "index": 7
-            },
-            "keys": "alt+8"
-        },
-        {
             "command": "paste",
             "keys": "ctrl+shift+v"
         },
         {
-            "command": 
-            {
-                "action": "splitPane",
-                "split": "auto",
-                "splitMode": "duplicate"
-            },
-            "keys": "alt+shift+d"
-        },
-        {
-            "command": "scrollDownPage",
-            "keys": "ctrl+shift+f"
+            "command": "scrollDownPage"
         }
     ],
     "alwaysShowTabs": true,
@@ -211,6 +211,12 @@
     "initialCols": 120,
     "initialRows": 30,
     "launchMode": "maximized",
+    "newTabMenu": 
+    [
+        {
+            "type": "remainingProfiles"
+        }
+    ],
     "profiles": 
     {
         "defaults": 
@@ -222,7 +228,7 @@
             "font": 
             {
                 "face": "Cascadia Code",
-                "size": 9
+                "size": 9.0
             },
             "historySize": 9001,
             "opacity": 90,
@@ -243,6 +249,12 @@
                 "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
                 "hidden": false,
                 "name": "Windows PowerShell"
+            },
+            {
+                "guid": "{4dd1e689-b517-5f39-947d-78e8a8bdf958}",
+                "hidden": false,
+                "name": "Ubuntu 20.04.6 LTS",
+                "source": "CanonicalGroupLimited.Ubuntu20.04LTS_79rhkp1fndgsc"
             }
         ]
     },
@@ -549,5 +561,50 @@
         }
     ],
     "showTerminalTitleInTitlebar": false,
-    "startOnUserLogin": false
+    "startOnUserLogin": false,
+    "themes": 
+    [
+        {
+            "name": "legacyDark",
+            "tab": 
+            {
+                "background": null,
+                "showCloseButton": "always",
+                "unfocusedBackground": null
+            },
+            "window": 
+            {
+                "applicationTheme": "dark",
+                "useMica": false
+            }
+        },
+        {
+            "name": "legacyLight",
+            "tab": 
+            {
+                "background": null,
+                "showCloseButton": "always",
+                "unfocusedBackground": null
+            },
+            "window": 
+            {
+                "applicationTheme": "light",
+                "useMica": false
+            }
+        },
+        {
+            "name": "legacySystem",
+            "tab": 
+            {
+                "background": null,
+                "showCloseButton": "always",
+                "unfocusedBackground": null
+            },
+            "window": 
+            {
+                "applicationTheme": "system",
+                "useMica": false
+            }
+        }
+    ]
 }
