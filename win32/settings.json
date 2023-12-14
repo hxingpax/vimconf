@@ -37,7 +37,7 @@
         },
         {
             "command": "duplicateTab",
-            "keys": "ctrl+alt+t"
+            "keys": "alt+t"
         },
         {
             "command": 
@@ -73,6 +73,14 @@
         {
             "command": "closePane",
             "keys": "alt+w"
+        },
+        {
+            "command": 
+            {
+                "action": "newTab",
+                "index": 0
+            },
+            "keys": "ctrl+1"
         },
         {
             "command": 
@@ -137,6 +145,14 @@
                 "direction": "previous"
             },
             "keys": "ctrl+alt+h"
+        },
+        {
+            "command": 
+            {
+                "action": "openSettings",
+                "target": "settingsUI"
+            },
+            "keys": "ctrl+comma"
         },
         {
             "command": 
@@ -400,6 +416,22 @@
             "keys": "alt+shift+up"
         },
         {
+            "command": "unbound",
+            "keys": "ctrl+alt+t"
+        },
+        {
+            "command": "unbound",
+            "keys": "ctrl+shift+1"
+        },
+        {
+            "command": "unbound",
+            "keys": "ctrl+shift+2"
+        },
+        {
+            "command": "unbound",
+            "keys": "ctrl+shift+3"
+        },
+        {
             "command": 
             {
                 "action": "switchToTab",
@@ -493,6 +525,30 @@
                 "direction": "up"
             },
             "keys": "ctrl+alt+up"
+        },
+        {
+            "command": 
+            {
+                "action": "newTab",
+                "index": 1
+            },
+            "keys": "ctrl+2"
+        },
+        {
+            "command": 
+            {
+                "action": "newTab",
+                "index": 2
+            },
+            "keys": "ctrl+3"
+        },
+        {
+            "command": 
+            {
+                "action": "openSettings",
+                "target": "defaultsFile"
+            },
+            "keys": "ctrl+alt+comma"
         }
     ],
     "alwaysShowTabs": true,
