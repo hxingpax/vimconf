@@ -9,6 +9,7 @@ alias ga='grep -rnHPI'
 alias f='find'
 alias glog='git log --graph --color'
 alias myns='netstat -tulpn'
+alias v='vim'
 
 set -o ignoreeof
 
