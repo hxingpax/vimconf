@@ -10,7 +10,7 @@ syn match logDebug "^\d\+:\d\+:\d\+\(\.\d\+\)\?|D|.\+"
 syn match logTest "^\d\+:\d\+:\d\+\(\.\d\+\)\?|I|.\+"
 
 " Define the highlighting for each pattern
-hi def logError ctermfg=Red guifg=Red
+hi def logError ctermfg=Magenta guifg=Magenta
 hi def logWarning ctermfg=Yellow guifg=Yellow
 hi def logDebug ctermfg=DarkGrey guifg=DarkGrey
 
