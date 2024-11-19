@@ -3,6 +3,8 @@ call dein#add('dracula/vim')
 let g:dracula_colorterm = 0
 colorscheme dracula
 
+" Logging highlight
+call dein#add('MTDL9/vim-log-highlighting')
 
 " Linting
 call dein#add('w0rp/ale')

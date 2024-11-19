@@ -38,3 +38,9 @@ endif
 source ~/workspace/vimconf/vimrc
 source ~/workspace/vimconf/plugins.vim
 source ~/workspace/vimconf/setup.vim
+
+augroup log_syntax
+  autocmd!
+  autocmd BufRead,BufNewFile *.log set filetype=log
+  autocmd FileType log source ~/workspace/vimconf/colors/log.vim
+augroup END
