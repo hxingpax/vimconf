@@ -1,4 +1,4 @@
-# Link this file to the default loading path(e.g. ~/.vimrc)
+" Link this file to the default loading path(e.g. ~/.vimrc)
 
 " Call dein#update() everytime plugins got updated.
 
