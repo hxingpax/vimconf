@@ -1,0 +1,32 @@
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+[user]
+	email = galaxyhuang@tencent.com
+	name = galaxyhuang
+[alias]
+	co = checkout
+	br = branch
+	ci = commit
+	st = status
+	unstage = reset HEAD --
+	last = log -1 HEAD
+	details = show
+[pull]
+	rebase = true
+[core]
+	autocrlf = true
+[merge]
+	ff = false
+[http "http://git.code.oa.com"]
+	proxy = http://127.0.0.1:12639
+[http "https://git.code.oa.com"]
+	proxy = http://127.0.0.1:12639
+[credential "https://git.woa.com"]
+	provider = generic
+[credential]
+	helper = store
+[url "git@git.woa.com:"]
+	insteadOf = https://git.woa.com/
