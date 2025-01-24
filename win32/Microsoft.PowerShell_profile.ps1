@@ -23,3 +23,5 @@ if (Test-Path($ChocolateyProfile)) {
 # Set alias
 Set-Alias -Name g -Value git
 
+# Use utf8
+$OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = [Text.UTF8Encoding]::UTF8
