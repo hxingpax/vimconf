@@ -67,6 +67,7 @@ set guifont=Lucida_Console:h9
 set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
 set linespace=6
 set list
+let $LANG = 'en_US'
 
 let mapleader=","
 
