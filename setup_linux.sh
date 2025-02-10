@@ -11,6 +11,8 @@ alias glog='git log --graph --color'
 alias myns='netstat -tulpn'
 alias v='vim'
 
+ulimit -c unlimited
+
 set -o ignoreeof
 
 # colored GCC warnings and errors
@@ -30,11 +32,13 @@ export GTK_IM_MODULE=ibus
 export XMODIFIERS=@im=ibus
 export QT_IM_MODULE=ibus
 
-export FZF_DEFAULT_COMMAND='rg --files'
-# export FZF_DEFAULT_OPTS='-m --height 50% --border --layout=reverse'
-export FZF_DEFAULT_OPTS='-m --height 50%'
+if [ -f ~/.fzf.bash ]; then
+  export FZF_DEFAULT_COMMAND='rg --files'
+  # export FZF_DEFAULT_OPTS='-m --height 50% --border --layout=reverse'
+  export FZF_DEFAULT_OPTS='-m --height 50%'
+fi
 
-ulimit -c unlimited
+[ -f ~/.dircolors ] && eval "`dircolors -b ~/.dircolors`"
 
 # echo '/tmp/core_%e.%p' | sudo tee /proc/sys/kernel/core_pattern
 
