@@ -51,8 +51,8 @@ set fileencoding=utf-8
 set tabstop=2
 set shiftwidth=2
 set expandtab
-"set lines=40
-"set columns=90
+set lines=999
+set columns=999
 set backupdir=c:\.vimbk
 set dir=c:\.vimbk
 set clipboard=unnamed
