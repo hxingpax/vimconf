@@ -1,0 +1,8 @@
+set showcmd		" Show (partial) command in status line.
+set smartcase		" Do smart case matching
+set incsearch		" Incremental search
+set clipboard+=unnamed
+set hlsearch
+set cursorline
+set fileformat=unix
+set ideajoin

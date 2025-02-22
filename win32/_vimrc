@@ -51,17 +51,11 @@ set fileencoding=utf-8
 set tabstop=2
 set shiftwidth=2
 set expandtab
-"set lines=40
-"set columns=90
-set dir=~/.vim
-set backupdir=~/.vim/bkup
-set packpath+=~/.vim
-set runtimepath+=~/.vim,~/.vim/after
-
-" 'unnamedplus' for linux, non-plus for macox
-"set clipboard=unnamedplus
+set lines=999
+set columns=999
+set backupdir=c:\.vimbk
+set dir=c:\.vimbk
 set clipboard=unnamed
-
 set guioptions-=T
 set hlsearch
 set cursorline
@@ -69,45 +63,39 @@ set cursorcolumn
 set termguicolors
 set lazyredraw
 set fileformat=unix
+set guifont=Lucida_Console:h9
 set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
+set linespace=6
 set list
-
-" turn absolute line numbers on
-set number relativenumber
+let $LANG = 'en_US'
 
 let mapleader=","
 
-syntax on
-
-filetype plugin indent on
-
-colorscheme evening
-
-if &compatible
-  set nocompatible
-endif
-
-" Enable transparency
-" hi Normal guibg=NONE ctermbg=NONE
-
 " NTree
 let g:netrw_liststyle = 3
-map <leader>1 :Vexplore<CR>
+map <leader>` :Vexplore<CR>
 "augroup ProjectDrawer
 "  autocmd!
 "  autocmd VimEnter * :Vexplore
 "augroup END
 
 " For fast search
-map <leader>. :g/\<<C-R><C-W>\><CR>
+map <leader>. :g/<C-R><C-W><CR>
+
+" turn absolute line numbers on
+set number relativenumber
+
+colorscheme evening
+" Uncomment following line to enable tranparency
+" hi Normal guibg=NONE ctermbg=NONE
 
 " Maps
 " map <F4> :Tlist<cr>
 " map <F8> :!ctags -R --language-force=c<cr>
 nnoremap <F5> :%!xxd<cr>
 
-" View mode in terminal
-" tnoremap <C-`> <C-\><C-N>
+" For terminal
+"tnoremap <Esc> <C-\><C-N>
 
 " Source a global configuration file if available
 if filereadable("/etc/vim/vimrc.local")

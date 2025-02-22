@@ -1,0 +1,3 @@
+"set clipboard+=unnamed " For XNU
+set clipboard+=unnamedplus " For Linux
+set ideajoin
