@@ -26,8 +26,6 @@ export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 # export ANDROID_NDK_ROOT=$ANDROID_HOME/android-ndk-r20
 # export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
 
-# export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-
 export GTK_IM_MODULE=ibus
 export XMODIFIERS=@im=ibus
 export QT_IM_MODULE=ibus

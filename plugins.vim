@@ -46,8 +46,8 @@ call dein#add('neomake/neomake')
 
 
 " YouCompleteMe
-"call dein#add('ycm-core/YouCompleteMe', {'build': './install.py', 'merged': 0})
-call dein#add('hxingpax/YouCompleteMe', {'build': './install.py --clangd-completer', 'merged': 1})
+call dein#add('ycm-core/YouCompleteMe', {'build': './install.py --clangd-completer', 'merged': 1})
+"call dein#add('hxingpax/YouCompleteMe', {'build': './install.py --clangd-completer', 'merged': 1})
 let g:ycm_min_num_of_chars_for_completion = 2
 let g:ycm_min_num_identifier_candidate_chars = 0
 let g:ycm_max_num_candidates = 50
