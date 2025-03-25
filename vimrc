@@ -53,10 +53,10 @@ set shiftwidth=2
 set expandtab
 "set lines=40
 "set columns=90
-set dir=~/.vim
-set backupdir=~/.vim/bkup
-set packpath+=~/.vim
-set runtimepath+=~/.vim,~/.vim/after
+set dir=/home/vim
+set backupdir=/home/vim/bkup
+set packpath+=/home/vim
+set runtimepath+=/home/vim,/home/vim/after
 
 " 'unnamedplus' for linux, non-plus for macox
 "set clipboard=unnamedplus
