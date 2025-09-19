@@ -1,0 +1,4 @@
+# Put into ~/.config/ripgrep/
+
+*.mmap3
+*.mmap2
