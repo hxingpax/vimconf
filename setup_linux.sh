@@ -4,7 +4,6 @@ alias l='ls -CF'
 alias ,,='fzf'
 alias t='tree -L'
 alias g='git'
-alias r='rake'
 alias ga='grep -rnHPI'
 alias f='find'
 alias glog='git log --graph --color'
@@ -16,10 +15,13 @@ OS=$(uname -s)
 case "$OS" in
   Darwin)
     alias myns='netstat -tuln'
+    alias r='noglob rake'
     PROMPT='%F{green}%n@%m%f:%F{blue}%~%f %F{yellow}%# %f'
+    export PATH="$(gem environment gemdir)/bin:$PATH"
     ;;
 
   Linux)
+    alias r='rake'
     alias myns='netstat -tulpn'
     ulimit -c unlimited
 
