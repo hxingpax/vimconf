@@ -16,7 +16,7 @@ OS=$(uname -s)
 case "$OS" in
   Darwin)
     alias myns='netstat -tuln'
-    PROMPT='%F{cyan}%n%f@%F{magenta}%m%f$ '
+    PROMPT='%F{green}%n@%m%f:%F{blue}%~%f %F{yellow}%# %f'
     ;;
 
   Linux)
