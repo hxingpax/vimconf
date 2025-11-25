@@ -14,6 +14,7 @@ set -o ignoreeof
 OS=$(uname -s)
 case "$OS" in
   Darwin)
+    setopt no_nomatch
     alias myns='netstat -tuln'
     alias r='noglob rake'
     PROMPT='%F{green}%n@%m%f:%F{blue}%~%f %F{yellow}%# %f'
