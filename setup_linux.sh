@@ -19,6 +19,13 @@ case "$OS" in
     alias r='noglob rake'
     PROMPT='%F{green}%n@%m%f:%F{blue}%~%f %F{yellow}%# %f'
     export PATH="$(gem environment gemdir)/bin:$PATH"
+
+    # If zsh-syntax-highlighting installed
+    [ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
+      source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    # If zsh-autosuggestions installed
+    [ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
+      source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
     ;;
 
   Linux)
@@ -41,6 +48,13 @@ case "$OS" in
     [ -f ~/.dircolors ] && eval "`dircolors -b ~/.dircolors`"
 
     # echo '/tmp/core_%e.%p' | sudo tee /proc/sys/kernel/core_pattern
+
+    # If zsh-syntax-highlighting installed
+    [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
+      source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    # If zsh-autosuggestions installed
+    [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
+      source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
     # For Android dev
     # export ANDROID_HOME=~/Android
