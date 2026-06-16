@@ -50,19 +50,76 @@ end
 -- ===========================================================================
 -- Appearance (Cascadia Code + One Half Dark + acrylic-ish opacity)
 -- ===========================================================================
-config.color_scheme = 'OneHalfDark'
+config.color_scheme = 'duskfox'
 
--- On macOS prefer SF Mono (preinstalled) over Menlo as a fallback.  Cascadia
--- Code remains the primary if the user has it installed.
-config.font = wezterm.font_with_fallback({
-  'Cascadia Code',
-  'CaskaydiaCove Nerd Font',
-  'JetBrains Mono',
-  is_mac and 'SF Mono' or 'Menlo',
-  'Menlo',
-  'Consolas',
-  'DejaVu Sans Mono',
-})
+-- Different operating systems ship different default monospace fonts, so use
+-- a per-OS fallback list.  Each list contains only fonts that are typically
+-- preinstalled on that OS (no third-party installs required) — WezTerm will
+-- fall through to its own bundled JetBrains Mono / Last Resort if none match.
+local function default_fonts()
+  if is_mac then
+    -- All preinstalled on modern macOS (/System/Library/Fonts/).
+    return {
+      'SF Mono',
+      'Menlo',
+      'Monaco',
+      'Courier New',
+    }
+  elseif is_windows then
+    -- Cascadia ships with Windows 11 / Windows Terminal; Consolas and
+    -- Courier New are present on every Windows since Vista.
+    return {
+      'Cascadia Code',
+      'Cascadia Mono',
+      'Consolas',
+      'Courier New',
+    }
+  else
+    -- Linux defaults vary by distro, but DejaVu / Liberation / Noto cover
+    -- the vast majority of mainstream installs (Ubuntu, Fedora, Arch, …).
+    return {
+      'DejaVu Sans Mono',
+      'Liberation Mono',
+      'Noto Sans Mono',
+      'Ubuntu Mono',
+      'monospace',
+    }
+  end
+end
+
+-- macOS ships SF Mono inside Terminal.app's Resources but doesn't register the
+-- .otf files as system fonts, so WezTerm's font discovery can't see them by
+-- default (causing "Unable to load a font specified by your font=...SF Mono"
+-- warnings).  Point font_dirs at Terminal.app's bundle so SF Mono works on any
+-- Mac with no manual install step — but only include paths that actually exist
+-- (covers Catalina+ at /System/Applications/..., pre-Catalina at /Applications/...,
+-- and silently degrades to fallback fonts if Apple ever relocates the bundle).
+local function dir_exists(path)
+  -- A directory opened as a file via io.open returns a handle on macOS even
+  -- though it isn't a regular file; that's fine for an existence probe.
+  local f = io.open(path, 'r')
+  if f then f:close(); return true end
+  return false
+end
+
+if is_mac then
+  local candidates = {
+    '/System/Applications/Utilities/Terminal.app/Contents/Resources/Fonts',
+    '/Applications/Utilities/Terminal.app/Contents/Resources/Fonts',
+  }
+  local dirs = {}
+  for _, p in ipairs(candidates) do
+    if dir_exists(p) then table.insert(dirs, p) end
+  end
+  if #dirs > 0 then
+    config.font_dirs = dirs
+    -- Don't set font_locator: the platform default (CoreText on macOS,
+    -- FontConfig on Linux, Gdi on Windows) already discovers system fonts,
+    -- and font_dirs above is searched in addition to it.
+  end
+end
+
+config.font      = wezterm.font_with_fallback(default_fonts())
 config.font_size = is_mac and 13 or 12
 
 config.window_background_opacity = 0.90              -- WT "opacity": 90
