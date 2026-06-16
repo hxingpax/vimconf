@@ -1,96 +1,110 @@
 -- $HOME/.config/wezterm/wezterm.lua
--- Works on Windows, macOS, Linux.
+-- Cross-platform WezTerm config (Windows / macOS / Linux).
 -- Reference: https://wezterm.org/config/files.html
 
 local wezterm = require 'wezterm'
 local act     = wezterm.action
 local config  = wezterm.config_builder()
 
--- ===========================================================================
--- OS detection
--- ===========================================================================
+-- ---------------------------------------------------------------------------
+-- Platform
+-- ---------------------------------------------------------------------------
 local target     = wezterm.target_triple
 local is_windows = target:find('windows') ~= nil
 local is_mac     = target:find('apple')   ~= nil
 local is_linux   = target:find('linux')   ~= nil and not is_windows
 
--- On macOS the primary modifier should be SUPER (⌘ Command), so Option (⌥)
--- stays free for typing accented characters, em-dashes, etc.  On Windows /
--- Linux the primary modifier remains ALT to match the original WT bindings.
+-- macOS uses ⌘ as primary so Option (⌥) stays free for composed input.
 local primary = is_mac and 'SUPER' or 'ALT'
 
--- ===========================================================================
--- Default shell / domain
---   * Windows -> WSL:Ubuntu  (matches WT "defaultProfile" Ubuntu2404)
---   * macOS / Linux -> auto-detect shell from $SHELL, fall back sensibly,
---                      working for both zsh and bash.
--- ===========================================================================
-local function detect_unix_shell()
-  local shell = os.getenv('SHELL')
-  if shell and shell ~= '' then
-    return shell
-  end
-  -- Probe common locations.
-  for _, candidate in ipairs({ '/bin/zsh', '/usr/bin/zsh', '/bin/bash', '/usr/bin/bash' }) do
-    local f = io.open(candidate, 'r')
-    if f then f:close(); return candidate end
-  end
-  return is_mac and '/bin/zsh' or '/bin/bash'
-end
-
-if is_windows then
-  config.default_domain = 'WSL:Ubuntu'
-else
-  local shell = detect_unix_shell()
-  -- `-l` makes both bash and zsh source their login profiles
-  -- (~/.zprofile, ~/.bash_profile, etc.) so PATH/aliases are loaded.
-  config.default_prog = { shell, '-l' }
-end
-
--- ===========================================================================
--- 启动菜单 / Launch menu
---   Detected ONCE at config-load time, so the menu list is computed exactly
---   once per WezTerm process — not on every keypress.
---
---   * Windows -> PowerShell, PowerShell 7, "PowerShell for VS 20xx"
---                (Developer PowerShell for every detected Visual Studio
---                 edition), and every installed WSL distribution.
---   * macOS / Linux -> zsh and bash, whichever are present.
---
---   Bound to: double-Shift (best-effort, see key_tables below) and
---             Ctrl+Shift+P as a reliable fallback alias.
--- ===========================================================================
+-- ---------------------------------------------------------------------------
+-- Filesystem helpers (io.open works for both files and dirs as a probe)
+-- ---------------------------------------------------------------------------
 local function path_exists(p)
   local f = io.open(p, 'r')
   if f then f:close(); return true end
   return false
 end
 
+local function first_existing(paths)
+  for _, p in ipairs(paths) do
+    if path_exists(p) then return p end
+  end
+end
+
+-- ---------------------------------------------------------------------------
+-- Shell / domain detection
+-- ---------------------------------------------------------------------------
+local function detect_unix_shell()
+  local shell = os.getenv('SHELL')
+  if shell and shell ~= '' then return shell end
+  return first_existing({ '/bin/zsh', '/usr/bin/zsh', '/bin/bash', '/usr/bin/bash' })
+      or (is_mac and '/bin/zsh' or '/bin/bash')
+end
+
+local function detect_wsl_distros()
+  if not is_windows then return {} end
+  local distros = {}
+  local ok, stdout = wezterm.run_child_process({ 'wsl.exe', '-l', '-q' })
+  if ok and stdout then
+    -- wsl.exe emits UTF-16-LE on Windows; strip null bytes.
+    stdout = stdout:gsub('%z', '')
+    for line in stdout:gmatch('[^\r\n]+') do
+      local distro = line:gsub('^%s+', ''):gsub('%s+$', '')
+      if distro ~= '' then table.insert(distros, distro) end
+    end
+  end
+  return distros
+end
+
+local wsl_distros = detect_wsl_distros()
+
+if is_windows then
+  -- Prefer Ubuntu, else first WSL distro, else fall back to local Windows shell.
+  local preferred
+  for _, d in ipairs(wsl_distros) do
+    if d:lower():find('ubuntu') then preferred = d; break end
+  end
+  preferred = preferred or wsl_distros[1]
+  if preferred then config.default_domain = 'WSL:' .. preferred end
+else
+  -- `-l` makes bash/zsh source login profiles (~/.zprofile, ~/.bash_profile).
+  config.default_prog = { detect_unix_shell(), '-l' }
+end
+
+-- ---------------------------------------------------------------------------
+-- 启动菜单 / Launch menu (Alt+Shift+T)
+-- Detected once at config load, not per keypress.
+-- ---------------------------------------------------------------------------
 local function build_launch_menu()
   local menu = {}
 
   if is_windows then
-    -- Windows PowerShell 5.x ships in every supported Windows.
+    -- Windows-side shells must spawn in 'local' domain — otherwise they'd
+    -- inherit the WSL default_domain and try to exec inside Ubuntu.
+    local LOCAL = { DomainName = 'local' }
+
     if path_exists('C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe') then
       table.insert(menu, {
-        label = 'Windows PowerShell',
-        args  = { 'powershell.exe', '-NoLogo' },
+        label  = 'Windows PowerShell',
+        args   = { 'powershell.exe', '-NoLogo' },
+        domain = LOCAL,
       })
     end
 
-    -- PowerShell 7+ (pwsh.exe), if installed.
-    for _, p in ipairs({
+    local pwsh = first_existing({
       'C:\\Program Files\\PowerShell\\7\\pwsh.exe',
       'C:\\Program Files\\PowerShell\\7-preview\\pwsh.exe',
-    }) do
-      if path_exists(p) then
-        table.insert(menu, { label = 'PowerShell 7', args = { p, '-NoLogo' } })
-        break
-      end
+    })
+    if pwsh then
+      table.insert(menu, {
+        label  = 'PowerShell 7',
+        args   = { pwsh, '-NoLogo' },
+        domain = LOCAL,
+      })
     end
 
-    -- "PowerShell for VS 20xx" — Developer PowerShell entry for each
-    -- installed Visual Studio (year × edition × Program Files variant).
+    -- Developer PowerShell for each installed Visual Studio.
     local vs_bases = {
       'C:\\Program Files\\Microsoft Visual Studio',
       'C:\\Program Files (x86)\\Microsoft Visual Studio',
@@ -104,48 +118,36 @@ local function build_launch_menu()
             '%s\\%s\\%s\\Common7\\Tools\\Launch-VsDevShell.ps1', base, year, ed)
           if path_exists(devshell) then
             table.insert(menu, {
-              label = string.format('PowerShell for VS %s (%s)', year, ed),
-              args  = {
+              label  = string.format('PowerShell for VS %s (%s)', year, ed),
+              args   = {
                 'powershell.exe', '-NoExit', '-Command',
                 string.format("& '%s'", devshell),
               },
+              domain = LOCAL,
             })
           end
         end
       end
     end
 
-    -- WSL distros: ask wsl.exe.  Output is UTF-16-LE on Windows; stripping
-    -- null bytes recovers ASCII distro names (Ubuntu, Debian, kali-linux, …).
-    local ok, stdout = wezterm.run_child_process({ 'wsl.exe', '-l', '-q' })
-    if ok and stdout then
-      stdout = stdout:gsub('%z', '')
-      for line in stdout:gmatch('[^\r\n]+') do
-        local distro = line:gsub('^%s+', ''):gsub('%s+$', '')
-        if distro ~= '' then
-          table.insert(menu, {
-            label = 'WSL: ' .. distro,
-            args  = { 'wsl.exe', '--distribution', distro },
-          })
-        end
-      end
+    -- WSL distros: target the WSL domain directly so WezTerm spawns
+    -- the distro's default login shell natively.
+    for _, distro in ipairs(wsl_distros) do
+      table.insert(menu, {
+        label  = 'WSL: ' .. distro,
+        domain = { DomainName = 'WSL:' .. distro },
+      })
     end
   else
-    -- macOS / Linux: zsh and bash, whichever exist.
-    for _, p in ipairs({ '/bin/zsh', '/usr/bin/zsh', '/usr/local/bin/zsh',
-                         '/opt/homebrew/bin/zsh' }) do
-      if path_exists(p) then
-        table.insert(menu, { label = 'zsh',  args = { p, '-l' } })
-        break
-      end
-    end
-    for _, p in ipairs({ '/bin/bash', '/usr/bin/bash', '/usr/local/bin/bash',
-                         '/opt/homebrew/bin/bash' }) do
-      if path_exists(p) then
-        table.insert(menu, { label = 'bash', args = { p, '-l' } })
-        break
-      end
-    end
+    local zsh = first_existing({
+      '/bin/zsh', '/usr/bin/zsh', '/usr/local/bin/zsh', '/opt/homebrew/bin/zsh',
+    })
+    if zsh then table.insert(menu, { label = 'zsh', args = { zsh, '-l' } }) end
+
+    local bash = first_existing({
+      '/bin/bash', '/usr/bin/bash', '/usr/local/bin/bash', '/opt/homebrew/bin/bash',
+    })
+    if bash then table.insert(menu, { label = 'bash', args = { bash, '-l' } }) end
   end
 
   return menu
@@ -153,89 +155,46 @@ end
 
 config.launch_menu = build_launch_menu()
 
--- ===========================================================================
--- Appearance (Cascadia Code + One Half Dark + acrylic-ish opacity)
--- ===========================================================================
+-- ---------------------------------------------------------------------------
+-- Appearance
+-- ---------------------------------------------------------------------------
 config.color_scheme = 'duskfox'
 
--- Different operating systems ship different default monospace fonts, so use
--- a per-OS fallback list.  Each list contains only fonts that are typically
--- preinstalled on that OS (no third-party installs required) — WezTerm will
--- fall through to its own bundled JetBrains Mono / Last Resort if none match.
-local function default_fonts()
-  if is_mac then
-    -- All preinstalled on modern macOS (/System/Library/Fonts/).
-    return {
-      'SF Mono',
-      'Menlo',
-      'Monaco',
-      'Courier New',
-    }
-  elseif is_windows then
-    -- Cascadia ships with Windows 11 / Windows Terminal; Consolas and
-    -- Courier New are present on every Windows since Vista.
-    return {
-      'Cascadia Code',
-      'Cascadia Mono',
-      'Consolas',
-      'Courier New',
-    }
-  else
-    -- Linux defaults vary by distro, but DejaVu / Liberation / Noto cover
-    -- the vast majority of mainstream installs (Ubuntu, Fedora, Arch, …).
-    return {
-      'DejaVu Sans Mono',
-      'Liberation Mono',
-      'Noto Sans Mono',
-      'Ubuntu Mono',
-      'monospace',
-    }
-  end
-end
+local DEFAULT_FONT_SIZE = is_mac and 13 or (is_windows and 10 or 12)
 
--- macOS ships SF Mono inside Terminal.app's Resources but doesn't register the
--- .otf files as system fonts, so WezTerm's font discovery can't see them by
--- default (causing "Unable to load a font specified by your font=...SF Mono"
--- warnings).  Point font_dirs at Terminal.app's bundle so SF Mono works on any
--- Mac with no manual install step — but only include paths that actually exist
--- (covers Catalina+ at /System/Applications/..., pre-Catalina at /Applications/...,
--- and silently degrades to fallback fonts if Apple ever relocates the bundle).
-local function dir_exists(path)
-  -- A directory opened as a file via io.open returns a handle on macOS even
-  -- though it isn't a regular file; that's fine for an existence probe.
-  local f = io.open(path, 'r')
-  if f then f:close(); return true end
-  return false
-end
+-- Per-OS fallback list of preinstalled monospace fonts.
+local DEFAULT_FONTS = is_mac and {
+  'SF Mono', 'Menlo', 'Monaco', 'Courier New',
+} or is_windows and {
+  'Cascadia Code', 'Cascadia Mono', 'Consolas', 'Courier New',
+} or {
+  'DejaVu Sans Mono', 'Liberation Mono', 'Noto Sans Mono', 'Ubuntu Mono', 'monospace',
+}
 
+-- macOS ships SF Mono inside Terminal.app but doesn't register it system-wide.
+-- Add Terminal.app's Resources dir so font discovery finds it.
 if is_mac then
-  local candidates = {
+  local dirs = {}
+  for _, p in ipairs({
     '/System/Applications/Utilities/Terminal.app/Contents/Resources/Fonts',
     '/Applications/Utilities/Terminal.app/Contents/Resources/Fonts',
-  }
-  local dirs = {}
-  for _, p in ipairs(candidates) do
-    if dir_exists(p) then table.insert(dirs, p) end
+  }) do
+    if path_exists(p) then table.insert(dirs, p) end
   end
-  if #dirs > 0 then
-    config.font_dirs = dirs
-    -- Don't set font_locator: the platform default (CoreText on macOS,
-    -- FontConfig on Linux, Gdi on Windows) already discovers system fonts,
-    -- and font_dirs above is searched in addition to it.
-  end
+  if #dirs > 0 then config.font_dirs = dirs end
 end
 
-config.font      = wezterm.font_with_fallback(default_fonts())
-config.font_size = is_mac and 13 or 12
+config.font      = wezterm.font_with_fallback(DEFAULT_FONTS)
+config.font_size = DEFAULT_FONT_SIZE
 
-config.window_background_opacity = 0.90              -- WT "opacity": 90
+config.window_background_opacity = 0.90
 if is_mac then
-  config.macos_window_background_blur = 20           -- mimic WT "useAcrylic"
+  config.macos_window_background_blur = 20
 elseif is_windows then
   config.win32_system_backdrop = 'Acrylic'
 end
 
-config.default_cursor_style = 'SteadyBar'            -- WT "cursorShape": "bar"
+config.default_cursor_style = 'SteadyBar'
 config.cursor_blink_rate    = 0
 config.colors = {
   cursor_bg     = '#FFFFFF',
@@ -244,200 +203,143 @@ config.colors = {
 
 config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
 
--- ===========================================================================
--- macOS-specific niceties
--- ===========================================================================
+-- ---------------------------------------------------------------------------
+-- macOS-specific
+-- ---------------------------------------------------------------------------
 if is_mac then
-  -- Let unbound Option keystrokes fall through to the OS so users can still
-  -- type composed characters like é, ñ, π, –, —.
+  -- Allow unbound Option keystrokes through the OS for composed input (é, —, π).
   config.send_composed_key_when_left_alt_is_pressed  = true
   config.send_composed_key_when_right_alt_is_pressed = true
-
-  -- Use the real macOS fullscreen (separate Space, green-button friendly).
   config.native_macos_fullscreen_mode = true
-
-  -- Smoother scrolling on Apple Silicon / Metal-capable GPUs.
   config.front_end = 'WebGpu'
-
-  -- IME for CJK / accented input (default is already true; explicit for clarity).
-  config.use_ime = true
+  config.use_ime   = true
 end
 
--- Quality-of-life that helps everywhere but bites hardest on macOS:
 config.audible_bell = 'Disabled'
 config.adjust_window_size_when_changing_font_size = false
 
--- ===========================================================================
--- Tab bar / window behaviors
--- ===========================================================================
-config.hide_tab_bar_if_only_one_tab    = false       -- WT "alwaysShowTabs"
-config.use_fancy_tab_bar               = true
-config.tab_bar_at_bottom               = false
-config.show_new_tab_button_in_tab_bar  = true
-config.show_tab_index_in_tab_bar       = true
+-- ---------------------------------------------------------------------------
+-- Tabs / window
+-- ---------------------------------------------------------------------------
+config.hide_tab_bar_if_only_one_tab   = false
+config.use_fancy_tab_bar              = true
+config.tab_bar_at_bottom              = false
+config.show_new_tab_button_in_tab_bar = true
+config.show_tab_index_in_tab_bar      = true
 
-config.initial_cols       = 120                      -- WT "initialCols"
-config.initial_rows       = 30                       -- WT "initialRows"
-config.scrollback_lines   = 9001                     -- WT "historySize"
+config.initial_cols     = 120
+config.initial_rows     = 30
+config.scrollback_lines = 9001
 
-config.window_close_confirmation = 'NeverPrompt'     -- WT "closeOnExit": graceful
+config.window_close_confirmation = 'NeverPrompt'
 config.exit_behavior             = 'CloseOnCleanExit'
-
--- WT "snapOnInput": true  ->  scroll to bottom when typing
 config.scroll_to_bottom_on_input = true
 
--- WT "copyOnSelect": false  -> WezTerm default, no extra setting needed.
+-- Disable animations.
+config.animation_fps         = 1
+config.cursor_blink_ease_in  = 'Constant'
+config.cursor_blink_ease_out = 'Constant'
 
--- WT "disableAnimations": true
-config.animation_fps          = 1
-config.cursor_blink_ease_in   = 'Constant'
-config.cursor_blink_ease_out  = 'Constant'
-
--- WT "launchMode": "maximized" -> maximize main window on GUI startup.
+-- Maximize main window on GUI startup.
 wezterm.on('gui-startup', function(cmd)
   local _, _, window = wezterm.mux.spawn_window(cmd or {})
   window:gui_window():maximize()
 end)
 
--- ===========================================================================
+-- ---------------------------------------------------------------------------
 -- Keybindings
---   On macOS the primary modifier is SUPER (⌘); on Windows/Linux it stays ALT.
--- ===========================================================================
-config.disable_default_key_bindings = false          -- keep WezTerm defaults too
+-- ---------------------------------------------------------------------------
+config.disable_default_key_bindings = false
 
 local function edit_config_action()
-  local editor
-  if is_windows then
-    editor = { 'notepad.exe', wezterm.config_file }
-  else
-    editor = { os.getenv('EDITOR') or 'vi', wezterm.config_file }
-  end
+  local editor = is_windows
+      and { 'notepad.exe', wezterm.config_file }
+      or  { os.getenv('EDITOR') or 'vi', wezterm.config_file }
   return act.SpawnCommandInNewTab({ args = editor })
 end
 
--- Show the 启动菜单 / launch menu as a fuzzy picker.  Showing only
--- LAUNCH_MENU_ITEMS keeps the list focused on the shells we detected
--- above, instead of WezTerm's wider domain/workspace launcher.
 local show_launch_menu = act.ShowLauncherArgs({
   flags = 'FUZZY|LAUNCH_MENU_ITEMS',
   title = '启动菜单',
 })
 
--- Double-Shift detector.  WezTerm fires a key event for the bare Shift
--- key on most platforms; this callback uses wezterm.GLOBAL to remember
--- the timestamp of the previous Shift tap and triggers the launch menu
--- when two taps land within 350ms.  Single Shift presses are a no-op,
--- and Shift-modified keystrokes (Shift+letter, Shift+arrow, …) are
--- delivered to the OS as combined events and are NOT affected.
-local function double_shift_action()
-  return wezterm.action_callback(function(window, pane)
-    local now  = os.clock()
-    local last = wezterm.GLOBAL.last_shift_at or 0
-    if (now - last) > 0 and (now - last) < 0.35 then
-      wezterm.GLOBAL.last_shift_at = 0
-      window:perform_action(show_launch_menu, pane)
-    else
-      wezterm.GLOBAL.last_shift_at = now
-    end
-  end)
+local edit_config = edit_config_action()
+
+-- Build numeric tab-activation bindings programmatically.
+local tab_keys = {}
+for i = 1, 9 do
+  tab_keys[i] = { key = tostring(i), mods = primary, action = act.ActivateTab(i - 1) }
 end
 
 config.keys = {
-  ------------------------------------------------------ 启动菜单 / Launch --
-  -- Double-Shift -> open the launch menu (detected shells).
-  -- Ctrl+Shift+P is a guaranteed fallback in case the host OS doesn't
-  -- deliver a key-up event for the bare Shift key (some Linux WMs).
-  { key = 'Shift', mods = 'NONE',       action = double_shift_action() },
-  { key = 'Shift', mods = 'SHIFT',      action = double_shift_action() },
-  { key = 'p',     mods = 'CTRL|SHIFT', action = show_launch_menu },
+  -- Launch menu
+  { key = 't', mods = 'ALT|SHIFT', action = show_launch_menu },
 
-  -------------------------------------------------------------------- Tabs --
-  -- ⌘1..9 (Mac) / Alt+1..9 (other) -> activate tab N-1
-  { key = '1', mods = primary, action = act.ActivateTab(0) },
-  { key = '2', mods = primary, action = act.ActivateTab(1) },
-  { key = '3', mods = primary, action = act.ActivateTab(2) },
-  { key = '4', mods = primary, action = act.ActivateTab(3) },
-  { key = '5', mods = primary, action = act.ActivateTab(4) },
-  { key = '6', mods = primary, action = act.ActivateTab(5) },
-  { key = '7', mods = primary, action = act.ActivateTab(6) },
-  { key = '8', mods = primary, action = act.ActivateTab(7) },
-  { key = '9', mods = primary, action = act.ActivateTab(8) },
+  -- Tabs (1-9)
+  tab_keys[1], tab_keys[2], tab_keys[3], tab_keys[4], tab_keys[5],
+  tab_keys[6], tab_keys[7], tab_keys[8], tab_keys[9],
 
-  -- ctrl+tab / ctrl+shift+tab -> next / prev tab (kept cross-platform)
-  { key = 'Tab', mods = 'CTRL',       action = act.ActivateTabRelative(1) },
+  { key = 'Tab', mods = 'CTRL',       action = act.ActivateTabRelative(1)  },
   { key = 'Tab', mods = 'CTRL|SHIFT', action = act.ActivateTabRelative(-1) },
+  { key = 't',   mods = primary,      action = act.SpawnTab('CurrentPaneDomain') },
+  { key = 'w',   mods = primary,      action = act.CloseCurrentPane({ confirm = false }) },
 
-  -- ⌘T (Mac) / Alt+T (other) -> new / duplicate tab
-  { key = 't', mods = primary, action = act.SpawnTab('CurrentPaneDomain') },
-
-  -- ⌘W (Mac) / Alt+W (other) -> close current pane/tab
-  { key = 'w', mods = primary, action = act.CloseCurrentPane({ confirm = false }) },
-
-  ----------------------------------------------------------- Find / clip --
-  { key = 'f', mods = primary, action = act.Search({ CaseInSensitiveString = '' }) },
-
-  -- Paste / copy: primary modifier on each platform, plus the standard
-  -- ctrl+shift+c/v alias (Linux muscle memory, also works on Mac/Windows).
+  -- Find / clipboard
+  { key = 'f', mods = primary,      action = act.Search({ CaseInSensitiveString = '' }) },
   { key = 'v', mods = primary,      action = act.PasteFrom('Clipboard') },
   { key = 'c', mods = primary,      action = act.CopyTo('Clipboard') },
   { key = 'c', mods = 'CTRL|SHIFT', action = act.CopyTo('Clipboard') },
   { key = 'v', mods = 'CTRL|SHIFT', action = act.PasteFrom('Clipboard') },
 
-  ------------------------------------------------------------- Settings --
-  -- ⌘, (Mac) / Alt+, (other) -> open this wezterm.lua in your editor.
-  -- Keep CTRL+, and CTRL|ALT+, as cross-platform aliases.
-  { key = ',', mods = primary,    action = edit_config_action() },
-  { key = ',', mods = 'CTRL',     action = edit_config_action() },
-  { key = ',', mods = 'CTRL|ALT', action = edit_config_action() },
+  -- Settings (open this file)
+  { key = ',', mods = primary,    action = edit_config },
+  { key = ',', mods = 'CTRL',     action = edit_config },
+  { key = ',', mods = 'CTRL|ALT', action = edit_config },
 
-  ------------------------------------------------------------ Font size --
+  -- Font size
   { key = '=', mods = primary, action = act.IncreaseFontSize },
   { key = '+', mods = primary, action = act.IncreaseFontSize },
   { key = '-', mods = primary, action = act.DecreaseFontSize },
   { key = '0', mods = primary, action = act.ResetFontSize },
 
-  --------------------------------------------------- Pane focus (hjkl) --
-  { key = 'h', mods = primary, action = act.ActivatePaneDirection('Left') },
-  { key = 'j', mods = primary, action = act.ActivatePaneDirection('Down') },
-  { key = 'k', mods = primary, action = act.ActivatePaneDirection('Up')   },
-  { key = 'l', mods = primary, action = act.ActivatePaneDirection('Right')},
-  { key = 'h', mods = 'CTRL|ALT', action = act.ActivatePaneDirection('Prev') },
+  -- Pane focus (hjkl)
+  { key = 'h', mods = primary,    action = act.ActivatePaneDirection('Left')  },
+  { key = 'j', mods = primary,    action = act.ActivatePaneDirection('Down')  },
+  { key = 'k', mods = primary,    action = act.ActivatePaneDirection('Up')    },
+  { key = 'l', mods = primary,    action = act.ActivatePaneDirection('Right') },
+  { key = 'h', mods = 'CTRL|ALT', action = act.ActivatePaneDirection('Prev')  },
 
-  ----------------------------------------------------------- Pane resize --
+  -- Pane resize
   { key = 'LeftArrow',  mods = 'CTRL|ALT', action = act.AdjustPaneSize({ 'Left',  5 }) },
   { key = 'RightArrow', mods = 'CTRL|ALT', action = act.AdjustPaneSize({ 'Right', 5 }) },
   { key = 'UpArrow',    mods = 'CTRL|ALT', action = act.AdjustPaneSize({ 'Up',    5 }) },
   { key = 'DownArrow',  mods = 'CTRL|ALT', action = act.AdjustPaneSize({ 'Down',  5 }) },
 
-  ------------------------------------------------------------ Pane split --
-  -- ctrl+alt+d / ctrl+alt+v  -> split right
+  -- Pane split
   { key = 'd', mods = 'CTRL|ALT', action = act.SplitHorizontal({ domain = 'CurrentPaneDomain' }) },
   { key = 'v', mods = 'CTRL|ALT', action = act.SplitHorizontal({ domain = 'CurrentPaneDomain' }) },
-  -- ctrl+alt+n  -> split down
   { key = 'n', mods = 'CTRL|ALT', action = act.SplitVertical({   domain = 'CurrentPaneDomain' }) },
 
-  ------------------------------------------------------------ Scrolling --
-  { key = 'y', mods = primary, action = act.ScrollByLine(-1) },          -- scrollUp
-  { key = 'e', mods = primary, action = act.ScrollByLine(1)  },          -- scrollDown
-  { key = 'b', mods = primary, action = act.ScrollByPage(-1) },          -- scrollUpPage
+  -- Scrolling
+  { key = 'y', mods = primary, action = act.ScrollByLine(-1) },
+  { key = 'e', mods = primary, action = act.ScrollByLine(1)  },
+  { key = 'b', mods = primary, action = act.ScrollByPage(-1) },
 }
 
--- ===========================================================================
--- Mouse: ⌘+click on a URL opens it (Mac convention).  On other platforms the
--- WezTerm default (CTRL+click) already does this.
--- ===========================================================================
+-- ---------------------------------------------------------------------------
+-- Mouse: ⌘+click opens URLs on macOS (CTRL+click is default elsewhere).
+-- ---------------------------------------------------------------------------
 if is_mac then
   config.mouse_bindings = {
     {
-      event = { Up = { streak = 1, button = 'Left' } },
-      mods = 'SUPER',
+      event  = { Up = { streak = 1, button = 'Left' } },
+      mods   = 'SUPER',
       action = act.OpenLinkAtMouseCursor,
     },
-    -- Without this, holding SUPER while clicking would still extend the
-    -- selection / move the cursor; suppress the default for the down event.
+    -- Suppress the default down-event so SUPER+click doesn't also extend selection.
     {
-      event = { Down = { streak = 1, button = 'Left' } },
-      mods = 'SUPER',
+      event  = { Down = { streak = 1, button = 'Left' } },
+      mods   = 'SUPER',
       action = act.Nop,
     },
   }
