@@ -48,6 +48,112 @@ else
 end
 
 -- ===========================================================================
+-- 启动菜单 / Launch menu
+--   Detected ONCE at config-load time, so the menu list is computed exactly
+--   once per WezTerm process — not on every keypress.
+--
+--   * Windows -> PowerShell, PowerShell 7, "PowerShell for VS 20xx"
+--                (Developer PowerShell for every detected Visual Studio
+--                 edition), and every installed WSL distribution.
+--   * macOS / Linux -> zsh and bash, whichever are present.
+--
+--   Bound to: double-Shift (best-effort, see key_tables below) and
+--             Ctrl+Shift+P as a reliable fallback alias.
+-- ===========================================================================
+local function path_exists(p)
+  local f = io.open(p, 'r')
+  if f then f:close(); return true end
+  return false
+end
+
+local function build_launch_menu()
+  local menu = {}
+
+  if is_windows then
+    -- Windows PowerShell 5.x ships in every supported Windows.
+    if path_exists('C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe') then
+      table.insert(menu, {
+        label = 'Windows PowerShell',
+        args  = { 'powershell.exe', '-NoLogo' },
+      })
+    end
+
+    -- PowerShell 7+ (pwsh.exe), if installed.
+    for _, p in ipairs({
+      'C:\\Program Files\\PowerShell\\7\\pwsh.exe',
+      'C:\\Program Files\\PowerShell\\7-preview\\pwsh.exe',
+    }) do
+      if path_exists(p) then
+        table.insert(menu, { label = 'PowerShell 7', args = { p, '-NoLogo' } })
+        break
+      end
+    end
+
+    -- "PowerShell for VS 20xx" — Developer PowerShell entry for each
+    -- installed Visual Studio (year × edition × Program Files variant).
+    local vs_bases = {
+      'C:\\Program Files\\Microsoft Visual Studio',
+      'C:\\Program Files (x86)\\Microsoft Visual Studio',
+    }
+    local vs_years    = { '2017', '2019', '2022' }
+    local vs_editions = { 'Enterprise', 'Professional', 'Community', 'BuildTools', 'Preview' }
+    for _, base in ipairs(vs_bases) do
+      for _, year in ipairs(vs_years) do
+        for _, ed in ipairs(vs_editions) do
+          local devshell = string.format(
+            '%s\\%s\\%s\\Common7\\Tools\\Launch-VsDevShell.ps1', base, year, ed)
+          if path_exists(devshell) then
+            table.insert(menu, {
+              label = string.format('PowerShell for VS %s (%s)', year, ed),
+              args  = {
+                'powershell.exe', '-NoExit', '-Command',
+                string.format("& '%s'", devshell),
+              },
+            })
+          end
+        end
+      end
+    end
+
+    -- WSL distros: ask wsl.exe.  Output is UTF-16-LE on Windows; stripping
+    -- null bytes recovers ASCII distro names (Ubuntu, Debian, kali-linux, …).
+    local ok, stdout = wezterm.run_child_process({ 'wsl.exe', '-l', '-q' })
+    if ok and stdout then
+      stdout = stdout:gsub('%z', '')
+      for line in stdout:gmatch('[^\r\n]+') do
+        local distro = line:gsub('^%s+', ''):gsub('%s+$', '')
+        if distro ~= '' then
+          table.insert(menu, {
+            label = 'WSL: ' .. distro,
+            args  = { 'wsl.exe', '--distribution', distro },
+          })
+        end
+      end
+    end
+  else
+    -- macOS / Linux: zsh and bash, whichever exist.
+    for _, p in ipairs({ '/bin/zsh', '/usr/bin/zsh', '/usr/local/bin/zsh',
+                         '/opt/homebrew/bin/zsh' }) do
+      if path_exists(p) then
+        table.insert(menu, { label = 'zsh',  args = { p, '-l' } })
+        break
+      end
+    end
+    for _, p in ipairs({ '/bin/bash', '/usr/bin/bash', '/usr/local/bin/bash',
+                         '/opt/homebrew/bin/bash' }) do
+      if path_exists(p) then
+        table.insert(menu, { label = 'bash', args = { p, '-l' } })
+        break
+      end
+    end
+  end
+
+  return menu
+end
+
+config.launch_menu = build_launch_menu()
+
+-- ===========================================================================
 -- Appearance (Cascadia Code + One Half Dark + acrylic-ish opacity)
 -- ===========================================================================
 config.color_scheme = 'duskfox'
@@ -209,7 +315,42 @@ local function edit_config_action()
   return act.SpawnCommandInNewTab({ args = editor })
 end
 
+-- Show the 启动菜单 / launch menu as a fuzzy picker.  Showing only
+-- LAUNCH_MENU_ITEMS keeps the list focused on the shells we detected
+-- above, instead of WezTerm's wider domain/workspace launcher.
+local show_launch_menu = act.ShowLauncherArgs({
+  flags = 'FUZZY|LAUNCH_MENU_ITEMS',
+  title = '启动菜单',
+})
+
+-- Double-Shift detector.  WezTerm fires a key event for the bare Shift
+-- key on most platforms; this callback uses wezterm.GLOBAL to remember
+-- the timestamp of the previous Shift tap and triggers the launch menu
+-- when two taps land within 350ms.  Single Shift presses are a no-op,
+-- and Shift-modified keystrokes (Shift+letter, Shift+arrow, …) are
+-- delivered to the OS as combined events and are NOT affected.
+local function double_shift_action()
+  return wezterm.action_callback(function(window, pane)
+    local now  = os.clock()
+    local last = wezterm.GLOBAL.last_shift_at or 0
+    if (now - last) > 0 and (now - last) < 0.35 then
+      wezterm.GLOBAL.last_shift_at = 0
+      window:perform_action(show_launch_menu, pane)
+    else
+      wezterm.GLOBAL.last_shift_at = now
+    end
+  end)
+end
+
 config.keys = {
+  ------------------------------------------------------ 启动菜单 / Launch --
+  -- Double-Shift -> open the launch menu (detected shells).
+  -- Ctrl+Shift+P is a guaranteed fallback in case the host OS doesn't
+  -- deliver a key-up event for the bare Shift key (some Linux WMs).
+  { key = 'Shift', mods = 'NONE',       action = double_shift_action() },
+  { key = 'Shift', mods = 'SHIFT',      action = double_shift_action() },
+  { key = 'p',     mods = 'CTRL|SHIFT', action = show_launch_menu },
+
   -------------------------------------------------------------------- Tabs --
   -- ⌘1..9 (Mac) / Alt+1..9 (other) -> activate tab N-1
   { key = '1', mods = primary, action = act.ActivateTab(0) },
