@@ -260,7 +260,7 @@ end
 
 local show_launch_menu = act.ShowLauncherArgs({
   flags = 'FUZZY|LAUNCH_MENU_ITEMS',
-  title = '启动菜单',
+  title = 'New tab',
 })
 
 local edit_config = edit_config_action()
