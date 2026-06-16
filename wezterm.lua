@@ -14,6 +14,11 @@ local is_windows = target:find('windows') ~= nil
 local is_mac     = target:find('apple')   ~= nil
 local is_linux   = target:find('linux')   ~= nil and not is_windows
 
+-- On macOS the primary modifier should be SUPER (⌘ Command), so Option (⌥)
+-- stays free for typing accented characters, em-dashes, etc.  On Windows /
+-- Linux the primary modifier remains ALT to match the original WT bindings.
+local primary = is_mac and 'SUPER' or 'ALT'
+
 -- ===========================================================================
 -- Default shell / domain
 --   * Windows -> WSL:Ubuntu  (matches WT "defaultProfile" Ubuntu2404)
@@ -47,10 +52,13 @@ end
 -- ===========================================================================
 config.color_scheme = 'OneHalfDark'
 
+-- On macOS prefer SF Mono (preinstalled) over Menlo as a fallback.  Cascadia
+-- Code remains the primary if the user has it installed.
 config.font = wezterm.font_with_fallback({
   'Cascadia Code',
   'CaskaydiaCove Nerd Font',
   'JetBrains Mono',
+  is_mac and 'SF Mono' or 'Menlo',
   'Menlo',
   'Consolas',
   'DejaVu Sans Mono',
@@ -72,6 +80,29 @@ config.colors = {
 }
 
 config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
+
+-- ===========================================================================
+-- macOS-specific niceties
+-- ===========================================================================
+if is_mac then
+  -- Let unbound Option keystrokes fall through to the OS so users can still
+  -- type composed characters like é, ñ, π, –, —.
+  config.send_composed_key_when_left_alt_is_pressed  = true
+  config.send_composed_key_when_right_alt_is_pressed = true
+
+  -- Use the real macOS fullscreen (separate Space, green-button friendly).
+  config.native_macos_fullscreen_mode = true
+
+  -- Smoother scrolling on Apple Silicon / Metal-capable GPUs.
+  config.front_end = 'WebGpu'
+
+  -- IME for CJK / accented input (default is already true; explicit for clarity).
+  config.use_ime = true
+end
+
+-- Quality-of-life that helps everywhere but bites hardest on macOS:
+config.audible_bell = 'Disabled'
+config.adjust_window_size_when_changing_font_size = false
 
 -- ===========================================================================
 -- Tab bar / window behaviors
@@ -106,7 +137,8 @@ wezterm.on('gui-startup', function(cmd)
 end)
 
 -- ===========================================================================
--- Keybindings (mirroring the Windows Terminal "keybindings" array)
+-- Keybindings
+--   On macOS the primary modifier is SUPER (⌘); on Windows/Linux it stays ALT.
 -- ===========================================================================
 config.disable_default_key_bindings = false          -- keep WezTerm defaults too
 
@@ -122,59 +154,55 @@ end
 
 config.keys = {
   -------------------------------------------------------------------- Tabs --
-  -- alt+1..9 -> switch to tab N-1
-  { key = '1', mods = 'ALT', action = act.ActivateTab(0) },
-  { key = '2', mods = 'ALT', action = act.ActivateTab(1) },
-  { key = '3', mods = 'ALT', action = act.ActivateTab(2) },
-  { key = '4', mods = 'ALT', action = act.ActivateTab(3) },
-  { key = '5', mods = 'ALT', action = act.ActivateTab(4) },
-  { key = '6', mods = 'ALT', action = act.ActivateTab(5) },
-  { key = '7', mods = 'ALT', action = act.ActivateTab(6) },
-  { key = '8', mods = 'ALT', action = act.ActivateTab(7) },
-  { key = '9', mods = 'ALT', action = act.ActivateTab(8) },
+  -- ⌘1..9 (Mac) / Alt+1..9 (other) -> activate tab N-1
+  { key = '1', mods = primary, action = act.ActivateTab(0) },
+  { key = '2', mods = primary, action = act.ActivateTab(1) },
+  { key = '3', mods = primary, action = act.ActivateTab(2) },
+  { key = '4', mods = primary, action = act.ActivateTab(3) },
+  { key = '5', mods = primary, action = act.ActivateTab(4) },
+  { key = '6', mods = primary, action = act.ActivateTab(5) },
+  { key = '7', mods = primary, action = act.ActivateTab(6) },
+  { key = '8', mods = primary, action = act.ActivateTab(7) },
+  { key = '9', mods = primary, action = act.ActivateTab(8) },
 
-  -- ctrl+tab / ctrl+shift+tab -> next / prev tab
+  -- ctrl+tab / ctrl+shift+tab -> next / prev tab (kept cross-platform)
   { key = 'Tab', mods = 'CTRL',       action = act.ActivateTabRelative(1) },
   { key = 'Tab', mods = 'CTRL|SHIFT', action = act.ActivateTabRelative(-1) },
 
-  -- ctrl+1/2/3 -> open a new tab (WT spawned profile-N; here a normal tab)
-  { key = '1', mods = 'CTRL', action = act.SpawnTab('CurrentPaneDomain') },
-  { key = '2', mods = 'CTRL', action = act.SpawnTab('CurrentPaneDomain') },
-  { key = '3', mods = 'CTRL', action = act.SpawnTab('CurrentPaneDomain') },
+  -- ⌘T (Mac) / Alt+T (other) -> new / duplicate tab
+  { key = 't', mods = primary, action = act.SpawnTab('CurrentPaneDomain') },
 
-  -- alt+t -> duplicate (WT "duplicateTab")
-  { key = 't', mods = 'ALT', action = act.SpawnTab('CurrentPaneDomain') },
-
-  -- alt+w -> close current pane/tab
-  { key = 'w', mods = 'ALT', action = act.CloseCurrentPane({ confirm = false }) },
+  -- ⌘W (Mac) / Alt+W (other) -> close current pane/tab
+  { key = 'w', mods = primary, action = act.CloseCurrentPane({ confirm = false }) },
 
   ----------------------------------------------------------- Find / clip --
-  { key = 'f', mods = 'ALT', action = act.Search({ CaseInSensitiveString = '' }) },
+  { key = 'f', mods = primary, action = act.Search({ CaseInSensitiveString = '' }) },
 
-  -- alt+v -> paste, plus the standard ctrl+shift+c/v as well
-  { key = 'v', mods = 'ALT',        action = act.PasteFrom('Clipboard') },
+  -- Paste / copy: primary modifier on each platform, plus the standard
+  -- ctrl+shift+c/v alias (Linux muscle memory, also works on Mac/Windows).
+  { key = 'v', mods = primary,      action = act.PasteFrom('Clipboard') },
+  { key = 'c', mods = primary,      action = act.CopyTo('Clipboard') },
   { key = 'c', mods = 'CTRL|SHIFT', action = act.CopyTo('Clipboard') },
   { key = 'v', mods = 'CTRL|SHIFT', action = act.PasteFrom('Clipboard') },
 
   ------------------------------------------------------------- Settings --
-  -- alt+,           -> open this wezterm.lua in your editor
-  -- ctrl+,          -> alias of the same (WT "openSettings settingsUI")
-  -- ctrl+alt+,      -> alias too                ("openSettings defaultsFile")
-  { key = ',', mods = 'ALT',       action = edit_config_action() },
-  { key = ',', mods = 'CTRL',      action = edit_config_action() },
-  { key = ',', mods = 'CTRL|ALT',  action = edit_config_action() },
+  -- ⌘, (Mac) / Alt+, (other) -> open this wezterm.lua in your editor.
+  -- Keep CTRL+, and CTRL|ALT+, as cross-platform aliases.
+  { key = ',', mods = primary,    action = edit_config_action() },
+  { key = ',', mods = 'CTRL',     action = edit_config_action() },
+  { key = ',', mods = 'CTRL|ALT', action = edit_config_action() },
 
   ------------------------------------------------------------ Font size --
-  { key = '=', mods = 'ALT', action = act.IncreaseFontSize },
-  { key = '+', mods = 'ALT', action = act.IncreaseFontSize },
-  { key = '-', mods = 'ALT', action = act.DecreaseFontSize },
-  { key = '0', mods = 'ALT', action = act.ResetFontSize },
+  { key = '=', mods = primary, action = act.IncreaseFontSize },
+  { key = '+', mods = primary, action = act.IncreaseFontSize },
+  { key = '-', mods = primary, action = act.DecreaseFontSize },
+  { key = '0', mods = primary, action = act.ResetFontSize },
 
   --------------------------------------------------- Pane focus (hjkl) --
-  { key = 'h', mods = 'ALT', action = act.ActivatePaneDirection('Left') },
-  { key = 'j', mods = 'ALT', action = act.ActivatePaneDirection('Down') },
-  { key = 'k', mods = 'ALT', action = act.ActivatePaneDirection('Up')   },
-  { key = 'l', mods = 'ALT', action = act.ActivatePaneDirection('Right')},
+  { key = 'h', mods = primary, action = act.ActivatePaneDirection('Left') },
+  { key = 'j', mods = primary, action = act.ActivatePaneDirection('Down') },
+  { key = 'k', mods = primary, action = act.ActivatePaneDirection('Up')   },
+  { key = 'l', mods = primary, action = act.ActivatePaneDirection('Right')},
   { key = 'h', mods = 'CTRL|ALT', action = act.ActivatePaneDirection('Prev') },
 
   ----------------------------------------------------------- Pane resize --
@@ -184,17 +212,37 @@ config.keys = {
   { key = 'DownArrow',  mods = 'CTRL|ALT', action = act.AdjustPaneSize({ 'Down',  5 }) },
 
   ------------------------------------------------------------ Pane split --
-  -- ctrl+alt+d  -> auto-split duplicate
+  -- ctrl+alt+d / ctrl+alt+v  -> split right
   { key = 'd', mods = 'CTRL|ALT', action = act.SplitHorizontal({ domain = 'CurrentPaneDomain' }) },
-  -- ctrl+alt+v  -> split right
   { key = 'v', mods = 'CTRL|ALT', action = act.SplitHorizontal({ domain = 'CurrentPaneDomain' }) },
   -- ctrl+alt+n  -> split down
   { key = 'n', mods = 'CTRL|ALT', action = act.SplitVertical({   domain = 'CurrentPaneDomain' }) },
 
   ------------------------------------------------------------ Scrolling --
-  { key = 'y', mods = 'ALT', action = act.ScrollByLine(-1) },          -- scrollUp
-  { key = 'e', mods = 'ALT', action = act.ScrollByLine(1)  },          -- scrollDown
-  { key = 'b', mods = 'ALT', action = act.ScrollByPage(-1) },          -- scrollUpPage
+  { key = 'y', mods = primary, action = act.ScrollByLine(-1) },          -- scrollUp
+  { key = 'e', mods = primary, action = act.ScrollByLine(1)  },          -- scrollDown
+  { key = 'b', mods = primary, action = act.ScrollByPage(-1) },          -- scrollUpPage
 }
+
+-- ===========================================================================
+-- Mouse: ⌘+click on a URL opens it (Mac convention).  On other platforms the
+-- WezTerm default (CTRL+click) already does this.
+-- ===========================================================================
+if is_mac then
+  config.mouse_bindings = {
+    {
+      event = { Up = { streak = 1, button = 'Left' } },
+      mods = 'SUPER',
+      action = act.OpenLinkAtMouseCursor,
+    },
+    -- Without this, holding SUPER while clicking would still extend the
+    -- selection / move the cursor; suppress the default for the down event.
+    {
+      event = { Down = { streak = 1, button = 'Left' } },
+      mods = 'SUPER',
+      action = act.Nop,
+    },
+  }
+end
 
 return config
