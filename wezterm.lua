@@ -316,9 +316,8 @@ config.keys = {
   { key = 'DownArrow',  mods = 'CTRL|ALT', action = act.AdjustPaneSize({ 'Down',  5 }) },
 
   -- Pane split
-  { key = 'd', mods = 'CTRL|ALT', action = act.SplitHorizontal({ domain = 'CurrentPaneDomain' }) },
-  { key = 'v', mods = 'CTRL|ALT', action = act.SplitHorizontal({ domain = 'CurrentPaneDomain' }) },
-  { key = 'n', mods = 'CTRL|ALT', action = act.SplitVertical({   domain = 'CurrentPaneDomain' }) },
+  { key = 'v', mods = 'CTRL|SUPER', action = act.SplitHorizontal({ domain = 'CurrentPaneDomain' }) },
+  { key = 'n', mods = 'CTRL|SUPER', action = act.SplitVertical({   domain = 'CurrentPaneDomain' }) },
 
   -- Scrolling
   { key = 'y', mods = primary, action = act.ScrollByLine(-1) },
