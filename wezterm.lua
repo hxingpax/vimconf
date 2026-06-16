@@ -63,7 +63,7 @@ config.font = wezterm.font_with_fallback({
   'Consolas',
   'DejaVu Sans Mono',
 })
-config.font_size = 12
+config.font_size = is_mac and 13 or 12
 
 config.window_background_opacity = 0.90              -- WT "opacity": 90
 if is_mac then
