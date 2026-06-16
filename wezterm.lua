@@ -160,7 +160,7 @@ config.launch_menu = build_launch_menu()
 -- ---------------------------------------------------------------------------
 config.color_scheme = 'duskfox'
 
-local DEFAULT_FONT_SIZE = is_mac and 13 or (is_windows and 10 or 12)
+local DEFAULT_FONT_SIZE = is_mac and 13 or 10
 
 -- Per-OS fallback list of preinstalled monospace fonts.
 local DEFAULT_FONTS = is_mac and {
