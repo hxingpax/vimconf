@@ -273,7 +273,7 @@ end
 
 config.keys = {
   -- Launch menu
-  { key = 't', mods = 'ALT|SHIFT', action = show_launch_menu },
+  { key = 't', mods = primary .. '|SHIFT', action = show_launch_menu },
 
   -- Tabs (1-9)
   tab_keys[1], tab_keys[2], tab_keys[3], tab_keys[4], tab_keys[5],
