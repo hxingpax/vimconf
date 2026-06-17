@@ -288,13 +288,9 @@ config.keys = {
   { key = 'f', mods = primary,      action = act.Search({ CaseInSensitiveString = '' }) },
   { key = 'v', mods = primary,      action = act.PasteFrom('Clipboard') },
   { key = 'c', mods = primary,      action = act.CopyTo('Clipboard') },
-  { key = 'c', mods = 'CTRL|SHIFT', action = act.CopyTo('Clipboard') },
-  { key = 'v', mods = 'CTRL|SHIFT', action = act.PasteFrom('Clipboard') },
 
   -- Settings (open this file)
-  { key = ',', mods = primary,    action = edit_config },
   { key = ',', mods = 'CTRL',     action = edit_config },
-  { key = ',', mods = 'CTRL|ALT', action = edit_config },
 
   -- Font size
   { key = '=', mods = primary, action = act.IncreaseFontSize },
@@ -307,13 +303,13 @@ config.keys = {
   { key = 'j', mods = primary,    action = act.ActivatePaneDirection('Down')  },
   { key = 'k', mods = primary,    action = act.ActivatePaneDirection('Up')    },
   { key = 'l', mods = primary,    action = act.ActivatePaneDirection('Right') },
-  { key = 'h', mods = 'CTRL|ALT', action = act.ActivatePaneDirection('Prev')  },
+  { key = 'h', mods = 'CTRL|' .. primary, action = act.ActivatePaneDirection('Prev')  },
 
   -- Pane resize
-  { key = 'LeftArrow',  mods = 'CTRL|ALT', action = act.AdjustPaneSize({ 'Left',  5 }) },
-  { key = 'RightArrow', mods = 'CTRL|ALT', action = act.AdjustPaneSize({ 'Right', 5 }) },
-  { key = 'UpArrow',    mods = 'CTRL|ALT', action = act.AdjustPaneSize({ 'Up',    5 }) },
-  { key = 'DownArrow',  mods = 'CTRL|ALT', action = act.AdjustPaneSize({ 'Down',  5 }) },
+  { key = 'LeftArrow',  mods = 'CTRL|' .. primary, action = act.AdjustPaneSize({ 'Left',  5 }) },
+  { key = 'RightArrow', mods = 'CTRL|' .. primary, action = act.AdjustPaneSize({ 'Right', 5 }) },
+  { key = 'UpArrow',    mods = 'CTRL|' .. primary, action = act.AdjustPaneSize({ 'Up',    5 }) },
+  { key = 'DownArrow',  mods = 'CTRL|' .. primary, action = act.AdjustPaneSize({ 'Down',  5 }) },
 
   -- Pane split
   { key = 'v', mods = 'CTRL|' .. primary, action = act.SplitHorizontal({ domain = 'CurrentPaneDomain' }) },
