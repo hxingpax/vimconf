@@ -233,6 +233,7 @@ config.scrollback_lines = 9001
 
 config.window_close_confirmation = 'NeverPrompt'
 config.exit_behavior             = 'CloseOnCleanExit'
+config.clean_exit_codes          = { 130 }  -- treat Ctrl+C / Ctrl+D as clean
 config.scroll_to_bottom_on_input = true
 
 -- Disable animations.
